@@ -1,0 +1,343 @@
+<!DOCTYPE html> 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Places I've Been</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f4;
+    }
+    header {
+      background: #3f51b5;
+      color: white;
+      padding: 1rem 2rem;
+    }
+    header h1 {
+      margin: 0;
+    }
+    main {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 1rem 2rem;
+      gap: 2rem;
+      box-sizing: border-box;
+    }
+    section {
+      background: white;
+      padding: 1rem;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    #places-list {
+      flex: 1 1 250px;
+      max-width: 300px;
+    }
+    #places-details {
+      flex: 2 1 350px;
+      min-width: 300px;
+    }
+    h2 {
+      margin-top: 0;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    li {
+      padding: 0.5rem;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+    }
+    li:hover {
+      background: #f0f0ff;
+    }
+    li.active {
+      background: #e8e8ff;
+      font-weight: bold;
+    }
+    .label {
+      font-weight: bold;
+    }
+    .landmark-tag {
+      display: inline-block;
+      background: #e0e0e0;
+      border-radius: 12px;
+      padding: 0.1rem 0.5rem;
+      margin: 0.1rem;
+      font-size: 0.85rem;
+    }
+    form {
+      margin-top: 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+    form label {
+      font-weight: bold;
+      margin-top: 0.3rem;
+    }
+    form input[type="text"],
+    form textarea {
+      width: 100%;
+      padding: 0.3rem 0.4rem;
+      box-sizing: border-box;
+      border-radius: 3px;
+      border: 1px solid #ccc;
+    }
+    form textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+    form button {
+      margin-top: 0.5rem;
+      padding: 0.4rem 0.8rem;
+      border: none;
+      border-radius: 3px;
+      background: #3f51b5;
+      color: white;
+      cursor: pointer;
+    }
+    form button:hover {
+      background: #3545a3;
+    }
+    .small {
+      font-size: 0.85rem;
+      color: #555;
+    }
+    @media (max-width: 700px) {
+      main {
+        flex-direction: column;
+      }
+      #places-list,
+      #places-details {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Places I've Been</h1>
+  </header>
+
+  <main>
+    <!-- Left: List of places -->
+    <section id="places-list">
+      <h2>My Places</h2>
+      <ul id="places-ul">
+        <!-- Filled by JavaScript -->
+      </ul>
+    </section>
+
+    <!-- Right: Details + Add New Place -->
+    <section id="places-details">
+      <h2>Details</h2>
+      <div id="place-details-content">
+        <p>Select a place on the left to view its details.</p>
+      </div>
+
+      <hr>
+
+      <h2>Add a New Place</h2>
+      <form id="add-place-form">
+        <label for="location-input">Location</label>
+        <input id="location-input" type="text" required placeholder="e.g. Paris, France">
+
+        <label for="landmarks-input">Landmarks (comma-separated)</label>
+        <input id="landmarks-input" type="text" placeholder="e.g. Eiffel Tower, Louvre">
+
+        <label for="time-input">Time of Year</label>
+        <input id="time-input" type="text" placeholder="e.g. Spring 2024">
+
+        <label for="notes-input">Notes</label>
+        <textarea id="notes-input" placeholder="Trip highlights, memories, etc."></textarea>
+
+        <button type="submit">Add Place</button>
+        <span class="small">New places will appear in the list on the left.</span>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    // === Business Logic: Constructors & Prototypes ===
+
+    function Place(location, landmarks, timeOfYear, notes) {
+      this.location = location;
+      this.landmarks = landmarks || [];
+      this.timeOfYear = timeOfYear || "";
+      this.notes = notes || "";
+    }
+
+    Place.prototype.summary = function() {
+      return this.location + (this.timeOfYear ? " (" + this.timeOfYear + ")" : "");
+    };
+
+    function TravelLog() {
+      this.places = [];
+      this.currentId = 0;
+    }
+
+    TravelLog.prototype.assignId = function() {
+      this.currentId += 1;
+      return this.currentId;
+    };
+
+    TravelLog.prototype.addPlace = function(place) {
+      place.id = this.assignId();
+      this.places.push(place);
+      return place.id;
+    };
+
+    TravelLog.prototype.findPlace = function(id) {
+      id = Number(id);
+      return this.places.find(function(place) {
+        return place.id === id;
+      }) || null;
+    };
+
+    TravelLog.prototype.removePlace = function(id) {
+      var index = this.places.findIndex(function(place) {
+        return place.id === id;
+      });
+      if (index === -1) return false;
+      this.places.splice(index, 1);
+      return true;
+    };
+
+    // === Sample Data: Add your own real places here ===
+    var myTravelLog = new TravelLog();
+
+    // Replace / extend these with all the places you’ve been:
+    myTravelLog.addPlace(new Place(
+      "Paris, France",
+      ["Eiffel Tower", "Louvre Museum", "Notre-Dame"],
+      "Spring 2022",
+      "Walked along the Seine, visited famous museums and enjoyed pastries."
+    ));
+
+    myTravelLog.addPlace(new Place(
+      "Tokyo, Japan",
+      ["Tokyo Skytree", "Shibuya Crossing", "Senso-ji Temple"],
+      "Autumn 2019",
+      "Loved the food, the neon lights, and the peaceful temples."
+    ));
+
+    myTravelLog.addPlace(new Place(
+      "New York City, USA",
+      ["Statue of Liberty", "Central Park", "Times Square"],
+      "Summer 2021",
+      "Busy city with great skyline views and Broadway shows."
+    ));
+
+    // Add as many as you like:
+    // myTravelLog.addPlace(new Place("City, Country", ["Landmark1", "Landmark2"], "Time", "Notes"));
+
+    // === UI Logic ===
+
+    var placesUl = document.getElementById("places-ul");
+    var detailsDiv = document.getElementById("place-details-content");
+
+    function clearActiveListItem() {
+      var items = placesUl.querySelectorAll("li");
+      items.forEach(function(li) {
+        li.classList.remove("active");
+      });
+    }
+
+    function renderPlacesList() {
+      placesUl.innerHTML = "";
+      myTravelLog.places.forEach(function(place) {
+        var li = document.createElement("li");
+        li.textContent = place.summary();
+        li.setAttribute("data-id", place.id);
+        li.addEventListener("click", function() {
+          clearActiveListItem();
+          li.classList.add("active");
+          showPlaceDetails(place.id);
+        });
+        placesUl.appendChild(li);
+      });
+    }
+
+    function showPlaceDetails(placeId) {
+      var place = myTravelLog.findPlace(placeId);
+      if (!place) {
+        detailsDiv.innerHTML = "<p>Place not found.</p>";
+        return;
+      }
+
+      var landmarksHtml = (place.landmarks && place.landmarks.length > 0)
+        ? place.landmarks.map(function(l) {
+            return '<span class="landmark-tag">' + l + '</span>';
+          }).join(" ")
+        : "<span class='small'>No landmarks listed.</span>";
+
+      detailsDiv.innerHTML = `
+        <p><span class="label">Location:</span> ${place.location}</p>
+        <p><span class="label">Time of Year:</span> ${place.timeOfYear || "<span class='small'>Not specified</span>"}</p>
+        <p><span class="label">Landmarks:</span> ${landmarksHtml}</p>
+        <p><span class="label">Notes:</span><br>${place.notes ? place.notes : "<span class='small'>No notes yet.</span>"}</p>
+      `;
+    }
+
+    // === Handle Add Place Form ===
+    var addPlaceForm = document.getElementById("add-place-form");
+    var locationInput = document.getElementById("location-input");
+    var landmarksInput = document.getElementById("landmarks-input");
+    var timeInput = document.getElementById("time-input");
+    var notesInput = document.getElementById("notes-input");
+
+    addPlaceForm.addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      var location = locationInput.value.trim();
+      if (!location) {
+        alert("Please enter a location.");
+        return;
+      }
+
+      var landmarksRaw = landmarksInput.value.trim();
+      var landmarks = [];
+      if (landmarksRaw) {
+        landmarks = landmarksRaw.split(",").map(function(item) {
+          return item.trim();
+        }).filter(function(item) {
+          return item.length > 0;
+        });
+      }
+
+      var timeOfYear = timeInput.value.trim();
+      var notes = notesInput.value.trim();
+
+      var newPlace = new Place(location, landmarks, timeOfYear, notes);
+      var newId = myTravelLog.addPlace(newPlace);
+
+      // Re-render list and show the new place
+      renderPlacesList();
+      showPlaceDetails(newId);
+
+      // Clear active and set on new item
+      clearActiveListItem();
+      var newLi = placesUl.querySelector('li[data-id="' + newId + '"]');
+      if (newLi) newLi.classList.add("active");
+
+      // Reset form
+      addPlaceForm.reset();
+    });
+
+    // Initial render
+    renderPlacesList();
+    if (myTravelLog.places.length > 0) {
+      var firstId = myTravelLog.places[Holland].id;
+      showPlaceDetails(firstId);
+      var firstLi = placesUl.querySelector('li[data-id="' + firstId + '"]');
+      if (firstLi) firstLi.classList.add("active");
+    }
+  </script>
+</body>
+</html>
